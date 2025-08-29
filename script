@@ -1,0 +1,76 @@
+#!/bin/bash
+
+# Script d'installation de thèmes GRUB (Sleek, CyberRe, Vimix Dark)
+
+echo "============================"
+echo "   Installation des thèmes  "
+echo "============================"
+
+# Créer un dossier temporaire
+mkdir -p ~/grub-themes
+cd ~/grub-themes
+
+# --- Installer Sleek ---
+if [ ! -d "grub2-theme-sleek" ]; then
+    git clone https://github.com/terroo/grub2-theme-sleek.git
+    cd grub2-theme-sleek
+    sudo ./install.sh
+    cd ..
+fi
+
+# --- Installer CyberRe ---
+if [ ! -d "cyberre-grub-theme" ]; then
+    git clone https://github.com/sandesh236/cyberre-grub-theme.git
+    cd cyberre-grub-theme
+    sudo ./install.sh
+    cd ..
+fi
+
+# --- Installer Vimix ---
+if [ ! -d "grub2-themes" ]; then
+    git clone https://github.com/vinceliuice/grub2-themes.git
+    cd grub2-themes
+    sudo ./install.sh -b -t vimix
+    cd ..
+fi
+
+echo "============================"
+echo "   Choisis ton thème GRUB   "
+echo "============================"
+echo "1) Sleek (sobre et pro)"
+echo "2) CyberRe (style hacker/cyberpunk)"
+echo "3) Vimix Dark (moderne et élégant)"
+echo "============================"
+read -p "Ton choix (1/2/3) : " choice
+
+case $choice in
+  1)
+    THEME_PATH="/boot/grub/themes/sleek/theme.txt"
+    ;;
+  2)
+    THEME_PATH="/boot/grub/themes/cyberre/theme.txt"
+    ;;
+  3)
+    THEME_PATH="/boot/grub/themes/Vimix/theme.txt"
+    ;;
+  *)
+    echo "Choix invalide. Par défaut : Sleek."
+    THEME_PATH="/boot/grub/themes/sleek/theme.txt"
+    ;;
+esac
+
+# Modifier la config GRUB
+sudo sed -i "s|^GRUB_THEME=.*|GRUB_THEME=\"$THEME_PATH\"|" /etc/default/grub
+
+# Si GRUB_THEME n'existe pas encore, l'ajouter
+if ! grep -q "GRUB_THEME=" /etc/default/grub; then
+    echo "GRUB_THEME=\"$THEME_PATH\"" | sudo tee -a /etc/default/grub
+fi
+
+# Mettre à jour GRUB
+sudo update-grub
+
+echo "============================"
+echo " ✅ Installation terminée !"
+echo "Redémarre ton PC pour voir ton nouveau GRUB."
+echo "============================"
